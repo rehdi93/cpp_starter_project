@@ -48,18 +48,21 @@ if(CPP_STARTER_USE_IMGUI)
   
   find_package(imgui CONFIG)
   find_package(ImGui-SFML CONFIG)
+  
+  add_executable(test_imgui imgui/test.cpp)
 
   if(NOT imgui_FOUND)
     message("using included imgui...")
     # imgui + sfml built as a lib, intentionally not using full warning flags
-    add_library(internal::imgui imgui/lib/imgui.cpp imgui/lib/imgui_draw.cpp imgui/lib/imgui-SFML.cpp)
-    target_link_libraries(internal::imgui INTERFACE ${SFML_LIBRARIES} ${OPENGL_gl_LIBRARY})
-    target_include_directories(internal::imgui PUBLIC imgui/lib)
-    add_library(imgui ALIAS internal::imgui)
+    add_library(internal_imgui imgui/lib/imgui.cpp imgui/lib/imgui_draw.cpp imgui/lib/imgui-SFML.cpp)
+    target_link_libraries(internal_imgui INTERFACE ${SFML_LIBRARIES} ${OPENGL_gl_LIBRARY})
+    target_include_directories(internal_imgui PUBLIC imgui/lib)
+    
+    target_link_libraries(test_imgui PRIVATE internal_imgui)
+  else()
+    target_link_libraries(test_imgui PRIVATE imgui::imgui ImGui-SFML::ImGui-SFML)
   endif()
 
-  add_executable(test_imgui imgui/test.cpp)
-  target_link_libraries(test_imgui PRIVATE  imgui ImGui-SFML)
   target_include_directories(test_imgui PRIVATE ${SFML_INCLUDE_DIR})
 endif()
 

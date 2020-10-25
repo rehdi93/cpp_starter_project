@@ -1,5 +1,5 @@
-#include "lib/imgui.h"
-#include "lib/imgui-SFML.h"
+#include "imgui.h"
+#include "imgui-SFML.h"
 
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
@@ -9,7 +9,7 @@
 int main()
 {
   ImGui::CreateContext();
-  sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
+  sf::RenderWindow window(sf::VideoMode(800, 600), "ImGui + SFML = <3");
   window.setFramerateLimit(60);
   ImGui::SFML::Init(window);
 
@@ -17,6 +17,7 @@ int main()
   sf::CircleShape shape(100.f);
   shape.setFillColor(sf::Color::Green);
 
+  bool show_demo = false;
   sf::Clock deltaClock;
   while (window.isOpen()) {
     sf::Event event;
@@ -32,7 +33,13 @@ int main()
 
     ImGui::Begin("Hello, world!");
     ImGui::Button("A Button!");
+    if (ImGui::Button("demo window")) {
+      show_demo = true;
+    }
     ImGui::End();
+
+    if (show_demo)
+      ImGui::ShowDemoWindow(&show_demo);
 
     window.clear();
     window.draw(shape);
