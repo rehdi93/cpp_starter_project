@@ -11,12 +11,12 @@ include(support/project_warnings.cmake)
 
 add_executable(intro main.cpp)
 target_compile_features(intro PRIVATE cxx_std_17)
-target_link_libraries(intro PRIVATE project_warnings --coverage)
+target_link_libraries(intro PRIVATE  --coverage)
 
 enable_testing()
 
 add_executable(tester tester.cpp)
-target_link_libraries(tester PRIVATE project_warnings --coverage)
+target_link_libraries(tester PRIVATE  --coverage)
 add_test(Tester tester)
 
 # qt
@@ -29,7 +29,7 @@ endif()
 if(CPP_STARTER_USE_FLTK)
   find_package(FLTK REQUIRED)
   add_executable(test_fltk fltk/test_fltk.cpp)
-  target_link_libraries(test_fltk PRIVATE project_warnings ${FLTK_LIBRARIES})
+  target_link_libraries(test_fltk PRIVATE  ${FLTK_LIBRARIES})
   target_include_directories(test_fltk PRIVATE ${FLTK_INCLUDE_DIR})
 endif()
 
@@ -38,21 +38,28 @@ if(CPP_STARTER_USE_GTKMM)
   find_package(PkgConfig REQUIRED)
   pkg_check_modules(GTKMM REQUIRED IMPORTED_TARGET gtkmm-3.0)
   add_executable(test_gtkmm gtkmm/main.cpp gtkmm/hello_world.cpp)
-  target_link_libraries(test_gtkmm PRIVATE project_warnings PkgConfig::GTKMM)
+  target_link_libraries(test_gtkmm PRIVATE  PkgConfig::GTKMM)
 endif()
 
 # imgui example
 if(CPP_STARTER_USE_IMGUI)
   find_package(SFML COMPONENTS graphics window system)
   find_package(OpenGL)
+  
+  find_package(imgui CONFIG)
+  find_package(ImGui-SFML CONFIG)
 
-  # imgui + sfml built as a lib, intentionally not using full warning flags
-  add_library(imgui imgui/lib/imgui.cpp imgui/lib/imgui_draw.cpp imgui/lib/imgui-SFML.cpp)
-  target_link_libraries(imgui INTERFACE ${SFML_LIBRARIES} ${OPENGL_gl_LIBRARY})
+  if(NOT imgui_FOUND)
+    message("using included imgui...")
+    # imgui + sfml built as a lib, intentionally not using full warning flags
+    add_library(internal::imgui imgui/lib/imgui.cpp imgui/lib/imgui_draw.cpp imgui/lib/imgui-SFML.cpp)
+    target_link_libraries(internal::imgui INTERFACE ${SFML_LIBRARIES} ${OPENGL_gl_LIBRARY})
+    target_include_directories(internal::imgui PUBLIC imgui/lib)
+    add_library(imgui ALIAS internal::imgui)
+  endif()
 
-  # imgui test executable, with full warnings enabled
   add_executable(test_imgui imgui/test.cpp)
-  target_link_libraries(test_imgui PRIVATE project_warnings imgui)
+  target_link_libraries(test_imgui PRIVATE  imgui ImGui-SFML)
   target_include_directories(test_imgui PRIVATE ${SFML_INCLUDE_DIR})
 endif()
 
