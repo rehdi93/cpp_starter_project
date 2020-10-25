@@ -1,0 +1,6 @@
+# Build results
+out/
+build/
+
+# Visual Studio
+CMakeSettings.json
